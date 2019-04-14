@@ -7,3 +7,6 @@
 
 # .tfvars files
 *.tfvars
+
+# Store service principal during development
+.secrets.env
