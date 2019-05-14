@@ -8,7 +8,7 @@ variable "client_secret" {
 
 variable "location" {
   description = "The Azure Region in which all resources should be provisioned"
-  default     = "westus"
+  default     = "westus2"
 }
 
 variable "prefix" {
@@ -20,8 +20,20 @@ variable "public_ssh_key_path" {
   default     = "~/.ssh/id_rsa.pub"
 }
 
+output "rg_name" {
+  value = "${module.aks.rg_name}"
+}
+
 output "network_plugin" {
   value = "${module.aks.network_plugin}"
+}
+
+output "vnet_name" {
+  value = "${module.aks.vnet_name}"
+}
+
+output "subnet_id" {
+  value = "${module.aks.subnet_id}"
 }
 
 output "service_cidr" {

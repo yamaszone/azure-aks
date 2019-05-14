@@ -8,6 +8,14 @@ variable "client_secret" {}
 
 variable "public_ssh_key_path" {}
 
+variable "admin_username" {}
+
+variable "worker_count" {}
+
+variable "worker_vm_type" {}
+
+variable "worker_vm_disk_size" {}
+
 resource "azurerm_resource_group" "rg" {
   name     = "${var.prefix}-rg"
   location = "${var.location}"
@@ -56,21 +64,19 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   resource_group_name = "${azurerm_resource_group.rg.name}"
 
   linux_profile {
-    admin_username = "adminuser"
+    admin_username = "${var.admin_username}"
 
     ssh_key {
       key_data = "${file(var.public_ssh_key_path)}"
     }
   }
 
-  # TODO: parameterize pool metadata
   agent_pool_profile {
-    #name            = "${var.prefix}agentpool"
-    name            = "agentpool"
-    count           = "2"
-    vm_size         = "Standard_DS2_v2"
+    name            = "${var.prefix}agentpool"
+    count           = "${var.worker_count}"
+    vm_size         = "${var.worker_vm_type}"
     os_type         = "Linux"
-    os_disk_size_gb = 30
+    os_disk_size_gb = "${var.worker_vm_disk_size}"
 
     # Required for advanced networking
     vnet_subnet_id = "${azurerm_subnet.subnet.id}"
@@ -86,8 +92,16 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 }
 
+output "rg_name" {
+  value = "${azurerm_resource_group.rg.name}"
+}
+
+output "vnet_name" {
+  value = "${azurerm_virtual_network.vnet.name}"
+}
+
 output "subnet_id" {
-  value = "${azurerm_kubernetes_cluster.k8s.agent_pool_profile.0.vnet_subnet_id}"
+  value = "${azurerm_subnet.subnet.id}"
 }
 
 output "network_plugin" {
